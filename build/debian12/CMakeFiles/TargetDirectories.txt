@@ -1,7 +1,0 @@
-/workspaces/heic_converter/build/debian12/CMakeFiles/heic_converter.dir
-/workspaces/heic_converter/build/debian12/CMakeFiles/edit_cache.dir
-/workspaces/heic_converter/build/debian12/CMakeFiles/rebuild_cache.dir
-/workspaces/heic_converter/build/debian12/CMakeFiles/list_install_components.dir
-/workspaces/heic_converter/build/debian12/CMakeFiles/install.dir
-/workspaces/heic_converter/build/debian12/CMakeFiles/install/local.dir
-/workspaces/heic_converter/build/debian12/CMakeFiles/install/strip.dir
