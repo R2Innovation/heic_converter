@@ -55,7 +55,7 @@ A command-line tool for converting HEIC/HEIF image files to other common image f
 ```
 bash
 
-# Clone the repository_
+# Clone the repository
 git clone https://github.com/R-Square-Innovative-Software/heic_converter
 cd heic_converter_v1.0
 
@@ -70,7 +70,7 @@ cd heic_converter_v1.0
 ```
 bash
 
-# Clone the repository_
+# Clone the repository
 git clone https://github.com/R-Square-Innovative-Software/heic_converter
 cd heic_converter_v1.0
 
@@ -169,7 +169,7 @@ heic_converter -v image.heic
 ```
 heic_converter_v1.0/
 ├── data/ # Embedded codecs
-│ ├── debian9/ # Codecs for Debian 9_
+│ ├── debian9/ # Codecs for Debian 9
 │ └── debian12/ # Codecs for Debian 12/13
 ├── scripts/ # Build scripts
 ├── include/ # Header files
