@@ -4,6 +4,15 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <ctime>
+
+// File timestamp structure
+struct FileTimestamps
+{
+    std::time_t tCreationTime;
+    std::time_t tModificationTime;
+    std::time_t tAccessTime;
+};
 
 // Function Declarations
 bool fn_fileExists(const std::string& sPath);
@@ -28,5 +37,10 @@ std::string fn_getDirectory(const std::string& sPath);
 bool fn_directoryExists(const std::string& sPath);
 bool fn_createDirectoryIfNeeded(const std::string& sPath);
 std::vector<std::string> fn_collectDirectoryFiles(const std::string& sDirectory, bool bRecursive);
+
+// NEW: Timestamp functions
+FileTimestamps fn_getFileTimestamps(const std::string& sFilePath);
+bool fn_setFileTimestamps(const std::string& sFilePath, const FileTimestamps& oTimestamps);
+bool fn_copyFileTimestamps(const std::string& sSource, const std::string& sDestination);
 
 #endif // FILE_UTILS_H

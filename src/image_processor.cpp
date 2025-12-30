@@ -1,4 +1,4 @@
-// image_processor.cpp - Complete implementation
+// image_processor.cpp - Updated for metadata passing
 #include "image_processor.h"
 #include "heic_decoder.h"
 #include "format_encoder.h"
@@ -33,38 +33,15 @@ ImageProcessor::~ImageProcessor()
     m_pLogger = nullptr;
 } // End Destructor
 
-// Initialize codecs
-bool ImageProcessor::fn_initializeCodecs() 
-{
-    if (m_bCodecsInitialized) 
-    {
-        return true;
-    }
-    
-    // Codecs are initialized on-demand in the decoder
-    m_bCodecsInitialized = true;
-    
-    if (m_pLogger) {
-        m_pLogger->fn_logInfo("ImageProcessor codecs ready");
-    }
-    
-    return true;
-} // End Function fn_initializeCodecs
-
-// Cleanup resources
-bool ImageProcessor::fn_cleanupResources() 
-{
-    // Cleanup any allocated resources
-    m_bCodecsInitialized = false;
-    return true;
-} // End Function fn_cleanupResources
-
-// Main conversion function
-bool ImageProcessor::fn_convertImage(
+// NEW: Convert image with metadata options
+bool ImageProcessor::fn_convertImageWithMetadata(
     const std::string& sInputPath, 
     const std::string& sOutputPath,
     const std::string& sOutputFormat,
-    int iQuality
+    int iQuality,
+    const std::vector<unsigned char>& vExifData,
+    const std::vector<unsigned char>& vXmpData,
+    const std::vector<unsigned char>& vIptcData
 ) 
 {
     // Reset last error
@@ -103,6 +80,9 @@ bool ImageProcessor::fn_convertImage(
     
     if (m_pLogger) {
         m_pLogger->fn_logInfo("Converting " + sInputPath + " to " + sFormat + " format");
+        if (!vExifData.empty()) {
+            m_pLogger->fn_logInfo("Preserving EXIF metadata (" + std::to_string(vExifData.size()) + " bytes)");
+        }
     }
     
     // Decode HEIC/HEIF image
@@ -115,9 +95,10 @@ bool ImageProcessor::fn_convertImage(
         return false;
     }
     
-    // Encode to output format
-    bool bEncoded = fn_encodeImage(pImageData, iWidth, iHeight, iChannels, 
-                                   sOutputPath, sFormat, m_iOutputQuality);
+    // Encode to output format with metadata
+    bool bEncoded = fn_encodeImageWithMetadata(pImageData, iWidth, iHeight, iChannels, 
+                                               sOutputPath, sFormat, m_iOutputQuality,
+                                               vExifData, vXmpData, vIptcData);
     
     // Cleanup image data
     if (pImageData) {
@@ -135,7 +116,46 @@ bool ImageProcessor::fn_convertImage(
     }
     
     return true;
+} // End Function fn_convertImageWithMetadata
+
+// Original function for backward compatibility
+bool ImageProcessor::fn_convertImage(
+    const std::string& sInputPath, 
+    const std::string& sOutputPath,
+    const std::string& sOutputFormat,
+    int iQuality
+) 
+{
+    // Call the new function without metadata
+    return fn_convertImageWithMetadata(sInputPath, sOutputPath, sOutputFormat, iQuality,
+                                       {}, {}, {});
 } // End Function fn_convertImage
+
+// Initialize codecs
+bool ImageProcessor::fn_initializeCodecs() 
+{
+    if (m_bCodecsInitialized) 
+    {
+        return true;
+    }
+    
+    // Codecs are initialized on-demand in the decoder
+    m_bCodecsInitialized = true;
+    
+    if (m_pLogger) {
+        m_pLogger->fn_logInfo("ImageProcessor codecs ready");
+    }
+    
+    return true;
+} // End Function fn_initializeCodecs
+
+// Cleanup resources
+bool ImageProcessor::fn_cleanupResources() 
+{
+    // Cleanup any allocated resources
+    m_bCodecsInitialized = false;
+    return true;
+} // End Function fn_cleanupResources
 
 // Decode HEIC/HEIF file
 bool ImageProcessor::fn_decodeHEIC(
@@ -185,15 +205,18 @@ bool ImageProcessor::fn_decodeHEIC(
     return true;
 } // End Function fn_decodeHEIC
 
-// Encode image to output format
-bool ImageProcessor::fn_encodeImage(
+// NEW: Encode image to output format with metadata
+bool ImageProcessor::fn_encodeImageWithMetadata(
     const unsigned char* pImageData, 
     int iWidth, 
     int iHeight, 
     int iChannels, 
     const std::string& sOutputPath, 
     const std::string& sOutputFormat, 
-    int iQuality
+    int iQuality,
+    const std::vector<unsigned char>& vExifData,
+    const std::vector<unsigned char>& vXmpData,
+    const std::vector<unsigned char>& vIptcData
 ) 
 {
     // Create encoder instance
@@ -201,30 +224,36 @@ bool ImageProcessor::fn_encodeImage(
     
     // Prepare image data structure
     sImageData oImageData;
-    oImageData.pData = const_cast<unsigned char*>(pImageData); // Safe cast
+    oImageData.pData = const_cast<unsigned char*>(pImageData);
     oImageData.iWidth = iWidth;
     oImageData.iHeight = iHeight;
     oImageData.iChannels = iChannels;
-    oImageData.iBitDepth = 8; // Assuming 8-bit for now
+    oImageData.iBitDepth = 8;
     
     // Prepare encoding options
     sEncodeOptions oOptions;
     oOptions.sFormat = sOutputFormat;
     oOptions.iQuality = iQuality;
     
+    // Set metadata
+    oOptions.vExifData = vExifData;
+    oOptions.vXmpData = vXmpData;
+    oOptions.vIptcData = vIptcData;
+    oOptions.bPreserveMetadata = !vExifData.empty() || !vXmpData.empty() || !vIptcData.empty();
+    
     // Set format-specific options
     std::string sLowerFormat = sOutputFormat;
     std::transform(sLowerFormat.begin(), sLowerFormat.end(), sLowerFormat.begin(), ::tolower);
     
     if (sLowerFormat == "png") {
-        oOptions.iCompressionLevel = 6; // Default PNG compression
+        oOptions.iCompressionLevel = 6;
         oOptions.bInterlace = false;
     } else if (sLowerFormat == "jpg" || sLowerFormat == "jpeg") {
         oOptions.bProgressive = false;
     } else if (sLowerFormat == "webp") {
-        oOptions.bLossless = false; // Lossy by default
+        oOptions.bLossless = false;
     } else if (sLowerFormat == "tiff" || sLowerFormat == "tif") {
-        oOptions.iCompressionLevel = 0; // Default TIFF compression
+        oOptions.iCompressionLevel = 0;
     }
     
     // Encode the image
@@ -235,6 +264,22 @@ bool ImageProcessor::fn_encodeImage(
     }
     
     return bResult;
+} // End Function fn_encodeImageWithMetadata
+
+// Original encode function for backward compatibility
+bool ImageProcessor::fn_encodeImage(
+    const unsigned char* pImageData, 
+    int iWidth, 
+    int iHeight, 
+    int iChannels, 
+    const std::string& sOutputPath, 
+    const std::string& sOutputFormat, 
+    int iQuality
+) 
+{
+    return fn_encodeImageWithMetadata(pImageData, iWidth, iHeight, iChannels,
+                                      sOutputPath, sOutputFormat, iQuality,
+                                      {}, {}, {});
 } // End Function fn_encodeImage
 
 // Validate image file

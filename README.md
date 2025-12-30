@@ -10,11 +10,7 @@ A command-line tool for converting HEIC/HEIF image files to other common image f
 
 ## **Features**
 
-<<<<<<< HEAD
-- No External Codec Dependencies: Embedded HEIC/HEIF codecs included
-=======
 - Embedded HEIC/HEIF codecs included if the system deos not have it installed
->>>>>>> 8bfd038 (Source tested and added)
 - Multiple Output Formats: Convert to JPEG, PNG, BMP, TIFF, or WebP
 - Batch Processing: Convert entire directories of images
 - Parallel Processing: Multi-threaded conversion for improved performance

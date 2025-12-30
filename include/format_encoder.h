@@ -1,5 +1,5 @@
 // format_encoder.h
-// R Square Innovation Software - HEIC Converter v1.0
+// R Square Innovation Software - HEIC Converter v1.1
 // Header for format encoding functionality using system libraries
 
 #ifndef FORMAT_ENCODER_H
@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <ctime>
 
 // Structure to hold raw image data
 struct sImageData {
@@ -25,6 +26,10 @@ struct sEncodeOptions {
     bool bProgressive; // For JPEG
     bool bInterlace; // For PNG
     bool bLossless; // For WebP
+    std::vector<unsigned char> vExifData; // NEW: EXIF metadata
+    std::vector<unsigned char> vXmpData;  // NEW: XMP metadata
+    std::vector<unsigned char> vIptcData; // NEW: IPTC metadata
+    bool bPreserveMetadata;               // NEW: Preserve metadata flag
 };
 
 class FormatEncoder {
@@ -88,6 +93,19 @@ private:
     bool fn_checkWebPSupport();
     bool fn_checkBMPSupport();
     bool fn_checkTIFFSupport();
+
+    // NEW: Metadata helper functions
+    bool fn_writeJpegWithMetadata(
+        const sImageData& oImageData,
+        const std::string& sOutputPath,
+        const sEncodeOptions& oOptions
+    );
+    
+    bool fn_writePngWithMetadata(
+        const sImageData& oImageData,
+        const std::string& sOutputPath,
+        const sEncodeOptions& oOptions
+    );
 
     // Member variables
     bool bPNGSupported;

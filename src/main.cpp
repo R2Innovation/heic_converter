@@ -1,6 +1,6 @@
 // main.cpp - Main entry point for HEIC Converter
 // Author: R Square Innovation Software
-// Version: v1.0
+// Version: v1.1  // CHANGED: v1.0 to v1.1
 
 #include "converter.h"
 #include "batch_processor.h"
@@ -89,6 +89,11 @@ void fn_showHelp()
     std::cout << "  -o, --overwrite      Overwrite existing files" << std::endl; // In iostream
     std::cout << "  -v, --verbose        Enable verbose output" << std::endl; // In iostream
     std::cout << "  --no-metadata        Strip metadata from output" << std::endl; // In iostream
+    std::cout << "  --no-timestamps      Do not preserve file timestamps" << std::endl; // NEW
+    std::cout << "  --no-exif            Strip EXIF metadata" << std::endl; // NEW
+    std::cout << "  --no-xmp             Strip XMP metadata" << std::endl; // NEW
+    std::cout << "  --no-iptc            Strip IPTC metadata" << std::endl; // NEW
+    std::cout << "  --no-gps             Strip GPS location data" << std::endl; // NEW
     std::cout << "  --no-color-profile   Strip color profile from output" << std::endl; // In iostream
     std::cout << "  -h, --help           Show this help message" << std::endl; // In iostream
     std::cout << "  --version            Show version information" << std::endl; // In iostream
@@ -97,11 +102,12 @@ void fn_showHelp()
     std::cout << "  " << sPROGRAM_NAME << " image.heic" << std::endl; // In iostream
     std::cout << "  " << sPROGRAM_NAME << " image.heic image.jpg" << std::endl; // In iostream
     std::cout << "  " << sPROGRAM_NAME << " -f png -q 90 image.heic" << std::endl; // In iostream
-    std::cout << "  " << sPROGRAM_NAME << " -r -f jpg ./input_dir ./output_dir" << std::endl; // In iostream
+    std::cout << "  " << sPROGRAM_NAME << " -r -f jpg --no-gps ./input_dir ./output_dir" << std::endl; // NEW example
     std::cout << "  " << sPROGRAM_NAME << " -t 8 -o -v ./photos ./converted" << std::endl; // In iostream
     std::cout << std::endl; // In iostream
     std::cout << "Supported input formats: .heic, .heif" << std::endl; // In iostream
     std::cout << "Supported output formats: .jpg, .jpeg, .png, .bmp, .tiff, .webp" << std::endl; // In iostream
+    std::cout << "Version 1.1 features: Metadata preservation, timestamp copying" << std::endl; // NEW
 } // End Function fn_showHelp
 
 // Local Function
@@ -111,6 +117,8 @@ void fn_showVersion()
     std::cout << "Build type: " << sBUILD_TYPE << std::endl; // In iostream
     std::cout << "Author: " << sAUTHOR << std::endl; // In iostream
     std::cout << "Embedded codecs: Enabled" << std::endl; // In iostream
+    std::cout << "Metadata preservation: Enabled" << std::endl; // NEW
+    std::cout << "Timestamp preservation: Enabled" << std::endl; // NEW
 } // End Function fn_showVersion
 
 // Local Function
@@ -120,6 +128,7 @@ void fn_printWelcome()
     std::cout << "HEIC/HEIF Converter " << sVERSION << std::endl; // In iostream
     std::cout << "by " << sAUTHOR << std::endl; // In iostream
     std::cout << "Build: " << sBUILD_TYPE << std::endl; // In iostream
+    std::cout << "Features: Metadata and timestamp preservation" << std::endl; // NEW
     std::cout << "========================================" << std::endl; // In iostream
     std::cout << std::endl; // In iostream
 } // End Function fn_printWelcome
@@ -237,7 +246,7 @@ int fn_parseArguments(int argc, char* argv[], oConfig& oCurrentConfig)
             } 
             catch (const std::exception& e) 
             { // Begin catch
-                std::cerr << "Error: Invalid compression value: " << sCompression << std::endl; // In iostream
+                std::cerr << "Error: Invalid compression value: " + sCompression << std::endl; // In iostream
                 return ERROR_INVALID_ARGUMENTS; // Invalid value
             } // End catch(const std::exception& e)
             
@@ -329,12 +338,52 @@ int fn_parseArguments(int argc, char* argv[], oConfig& oCurrentConfig)
             continue; // Continue to next argument
         } // End if(sCurrentArg == "-v" || sCurrentArg == "--verbose")
         
+        // NEW: Metadata-related flags
         if (sCurrentArg == "--no-metadata") 
         { // Begin if
             oCurrentConfig.bKeepMetadata = false; // Local Function
+            oCurrentConfig.bPreserveEXIF = false; // Also disable EXIF
+            oCurrentConfig.bPreserveXMP = false;  // Also disable XMP
+            oCurrentConfig.bPreserveIPTC = false; // Also disable IPTC
+            oCurrentConfig.bPreserveGPS = false;  // Also disable GPS
             iCurrentIndex++; // Skip flag
             continue; // Continue to next argument
         } // End if(sCurrentArg == "--no-metadata")
+        
+        if (sCurrentArg == "--no-timestamps") 
+        { // Begin if
+            oCurrentConfig.bPreserveTimestamps = false; // Local Function
+            iCurrentIndex++; // Skip flag
+            continue; // Continue to next argument
+        } // End if(sCurrentArg == "--no-timestamps")
+        
+        if (sCurrentArg == "--no-exif") 
+        { // Begin if
+            oCurrentConfig.bPreserveEXIF = false; // Local Function
+            iCurrentIndex++; // Skip flag
+            continue; // Continue to next argument
+        } // End if(sCurrentArg == "--no-exif")
+        
+        if (sCurrentArg == "--no-xmp") 
+        { // Begin if
+            oCurrentConfig.bPreserveXMP = false; // Local Function
+            iCurrentIndex++; // Skip flag
+            continue; // Continue to next argument
+        } // End if(sCurrentArg == "--no-xmp")
+        
+        if (sCurrentArg == "--no-iptc") 
+        { // Begin if
+            oCurrentConfig.bPreserveIPTC = false; // Local Function
+            iCurrentIndex++; // Skip flag
+            continue; // Continue to next argument
+        } // End if(sCurrentArg == "--no-iptc")
+        
+        if (sCurrentArg == "--no-gps") 
+        { // Begin if
+            oCurrentConfig.bPreserveGPS = false; // Local Function
+            iCurrentIndex++; // Skip flag
+            continue; // Continue to next argument
+        } // End if(sCurrentArg == "--no-gps")
         
         if (sCurrentArg == "--no-color-profile") 
         { // Begin if

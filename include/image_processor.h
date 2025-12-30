@@ -1,4 +1,4 @@
-// image_processor.h - Updated version
+// image_processor.h - Updated version with metadata support
 #ifndef IMAGE_PROCESSOR_H
 #define IMAGE_PROCESSOR_H
 
@@ -10,14 +10,25 @@ class ImageProcessor
 {
     public:
         // Constructor and Destructor - Updated
-        ImageProcessor(oLogger* pLogger = nullptr); // Changed constructor
+        ImageProcessor(oLogger* pLogger = nullptr);
         ~ImageProcessor();
         
-        // Public Methods - Add missing declarations
+        // Public Methods - Updated with metadata support
         bool fn_convertImage(const std::string& sInputPath, 
                              const std::string& sOutputPath,
                              const std::string& sOutputFormat = "",
-                             int iQuality = 85); // Add default parameters
+                             int iQuality = 85);
+        
+        // NEW: Convert image with metadata preservation
+        bool fn_convertImageWithMetadata(
+            const std::string& sInputPath, 
+            const std::string& sOutputPath,
+            const std::string& sOutputFormat = "",
+            int iQuality = 85,
+            const std::vector<unsigned char>& vExifData = {},
+            const std::vector<unsigned char>& vXmpData = {},
+            const std::vector<unsigned char>& vIptcData = {}
+        );
         
         bool fn_validateImage(const std::string& sImagePath);
         std::vector<std::string> fn_getSupportedInputFormats();
@@ -27,7 +38,7 @@ class ImageProcessor
         std::string fn_getLastError();
         
     private:
-        // Private Variables - Add missing members
+        // Private Variables
         oLogger* m_pLogger;
         std::string m_sLastError;
         int m_iOutputQuality;
@@ -35,7 +46,7 @@ class ImageProcessor
         void* m_pHeifContext;
         void* m_pHeifImage;
         
-        // Private Methods - Add missing declarations
+        // Private Methods
         bool fn_initializeCodecs();
         bool fn_cleanupResources();
         bool fn_decodeHEIC(const std::string& sInputPath, 
@@ -50,6 +61,21 @@ class ImageProcessor
                            const std::string& sOutputPath, 
                            const std::string& sOutputFormat, 
                            int iQuality);
+        
+        // NEW: Encode with metadata
+        bool fn_encodeImageWithMetadata(
+            const unsigned char* pImageData, 
+            int iWidth, 
+            int iHeight, 
+            int iChannels, 
+            const std::string& sOutputPath, 
+            const std::string& sOutputFormat, 
+            int iQuality,
+            const std::vector<unsigned char>& vExifData,
+            const std::vector<unsigned char>& vXmpData,
+            const std::vector<unsigned char>& vIptcData
+        );
+        
         bool fn_validateOutputFormat(const std::string& sFormat);
         std::string fn_determineOutputFormat(const std::string& sOutputPath);
 }; // End Class ImageProcessor

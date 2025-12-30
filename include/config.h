@@ -7,7 +7,7 @@
 
 // Program Information
 const std::string sPROGRAM_NAME = "heic_converter";
-const std::string sVERSION = "v1.0";
+const std::string sVERSION = "v1.1";
 const std::string sAUTHOR = "R Square Innovation Software";
 
 // Build Configuration
@@ -28,6 +28,12 @@ const float fDEFAULT_SCALE_FACTOR = 1.0f;
 const bool bDEFAULT_OVERWRITE = false;
 const bool bDEFAULT_VERBOSE = false;
 const bool bDEFAULT_RECURSIVE = false;
+const bool bDEFAULT_PRESERVE_METADATA = true;      // NEW: Default preserve metadata
+const bool bDEFAULT_PRESERVE_TIMESTAMPS = true;    // NEW: Default preserve timestamps
+const bool bDEFAULT_PRESERVE_EXIF = true;          // NEW: Default preserve EXIF
+const bool bDEFAULT_PRESERVE_XMP = true;           // NEW: Default preserve XMP
+const bool bDEFAULT_PRESERVE_IPTC = true;          // NEW: Default preserve IPTC
+const bool bDEFAULT_PRESERVE_GPS = true;           // NEW: Default preserve GPS
 
 // Supported Input Formats
 const std::vector<std::string> vsSUPPORTED_INPUT_FORMATS = {
@@ -73,6 +79,9 @@ enum eErrorCode {
     ERROR_MEMORY_ALLOCATION = 8,
     ERROR_CODEC_INITIALIZATION = 9,
     ERROR_BATCH_PROCESSING = 10,
+    ERROR_METADATA_EXTRACTION = 11,     // NEW: Metadata error
+    ERROR_METADATA_WRITING = 12,        // NEW: Metadata error
+    ERROR_TIMESTAMP_COPY = 13,          // NEW: Timestamp error
     ERROR_UNKNOWN = 255
 };
 
@@ -90,6 +99,11 @@ struct oConfig {
     bool bRecursive;
     bool bKeepMetadata;
     bool bStripColorProfile;
+    bool bPreserveTimestamps;     // NEW: Preserve file timestamps
+    bool bPreserveEXIF;           // NEW: Preserve EXIF metadata
+    bool bPreserveXMP;            // NEW: Preserve XMP metadata
+    bool bPreserveIPTC;           // NEW: Preserve IPTC metadata
+    bool bPreserveGPS;            // NEW: Preserve GPS data
 };
 
 // Function Declarations - KEEP THESE

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(heic_converter VERSION 1.0.0 LANGUAGES CXX)
+project(heic_converter VERSION 1.1.0 LANGUAGES CXX)  # CHANGED: 1.0.0 to 1.1.0
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -92,7 +92,7 @@ add_definitions(-DHAVE_PNG -DHAVE_JPEG)
 message(STATUS "PNG support: YES (via libpng)")
 message(STATUS "JPEG support: YES (via libjpeg)")
 
-# WebP library - FIXED: Use simpler detection
+# WebP library
 find_path(WEBP_INCLUDE_DIR webp/encode.h)
 find_library(WEBP_LIBRARY NAMES webp)
 find_library(WEBP_DEMUX_LIBRARY NAMES webpdemux)
@@ -109,7 +109,7 @@ else()
     set(WEBP_LIBRARIES_FOUND FALSE)
 endif()
 
-# TIFF library - FIXED: Use simpler detection
+# TIFF library
 find_path(TIFF_INCLUDE_DIR tiffio.h)
 find_library(TIFF_LIBRARY NAMES tiff)
 
@@ -170,7 +170,7 @@ if(LIBHEIF_LIBRARIES_FOUND)
     endif()
 endif()
 
-# WebP libraries (already fixed, keep as is)
+# WebP libraries
 if(WEBP_LIBRARIES_FOUND)
     target_link_libraries(heic_converter PRIVATE ${WEBP_LIBRARIES})
 endif()
@@ -193,3 +193,4 @@ message(STATUS "Build configuration complete.")
 message(STATUS "Target: heic_converter")
 message(STATUS "Build type: ${BUILD_TYPE}")
 message(STATUS "System libheif: ${USE_SYSTEM_LIBHEIF}")
+message(STATUS "Version: 1.1.0 - Metadata preservation enabled")  # NEW

@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <ctime>
 #include <fstream>
+#include <utime.h>
 #include "logger.h"
 
 bool fn_fileExists(const std::string& sPath) // Local Function
@@ -419,3 +420,51 @@ std::vector<std::string> fn_collectDirectoryFiles(const std::string& sDirectory,
     
     return vsFiles;
 } // End Function fn_collectDirectoryFiles
+
+// NEW: Get file timestamps
+FileTimestamps fn_getFileTimestamps(const std::string& sFilePath)
+{
+    FileTimestamps oTimestamps;
+    
+    struct stat file_stat;
+    if (stat(sFilePath.c_str(), &file_stat) == 0) {
+        #ifdef __APPLE__
+        // macOS: st_birthtime is creation time
+        oTimestamps.tCreationTime = file_stat.st_birthtime;
+        #elif defined(__linux__)
+        // Linux: Try to get birth time from statx if available, otherwise use st_mtime
+        oTimestamps.tCreationTime = file_stat.st_mtime;
+        #else
+        // Windows or other: st_ctime might be creation time or change time
+        oTimestamps.tCreationTime = file_stat.st_ctime;
+        #endif
+        
+        oTimestamps.tModificationTime = file_stat.st_mtime;
+        oTimestamps.tAccessTime = file_stat.st_atime;
+    }
+    
+    return oTimestamps;
+} // End Function fn_getFileTimestamps
+
+// NEW: Set file timestamps
+bool fn_setFileTimestamps(const std::string& sFilePath, const FileTimestamps& oTimestamps)
+{
+    struct utimbuf new_times;
+    new_times.actime = oTimestamps.tAccessTime;
+    new_times.modtime = oTimestamps.tModificationTime;
+    
+    if (utime(sFilePath.c_str(), &new_times) == 0) {
+        fn_logInfo("Successfully set timestamps for: " + sFilePath);
+        return true;
+    } else {
+        fn_logWarning("Failed to set timestamps for: " + sFilePath);
+        return false;
+    }
+} // End Function fn_setFileTimestamps
+
+// NEW: Copy timestamps from source to destination
+bool fn_copyFileTimestamps(const std::string& sSource, const std::string& sDestination)
+{
+    FileTimestamps oTimestamps = fn_getFileTimestamps(sSource);
+    return fn_setFileTimestamps(sDestination, oTimestamps);
+} // End Function fn_copyFileTimestamps

@@ -152,8 +152,13 @@ oConfig fn_getDefaultConfig()
     oDefaultConfig.bOverwrite = bDEFAULT_OVERWRITE;
     oDefaultConfig.bVerbose = bDEFAULT_VERBOSE;
     oDefaultConfig.bRecursive = bDEFAULT_RECURSIVE;
-    oDefaultConfig.bKeepMetadata = true;
+    oDefaultConfig.bKeepMetadata = bDEFAULT_PRESERVE_METADATA;
     oDefaultConfig.bStripColorProfile = false;
+    oDefaultConfig.bPreserveTimestamps = bDEFAULT_PRESERVE_TIMESTAMPS;  // NEW
+    oDefaultConfig.bPreserveEXIF = bDEFAULT_PRESERVE_EXIF;              // NEW
+    oDefaultConfig.bPreserveXMP = bDEFAULT_PRESERVE_XMP;                // NEW
+    oDefaultConfig.bPreserveIPTC = bDEFAULT_PRESERVE_IPTC;              // NEW
+    oDefaultConfig.bPreserveGPS = bDEFAULT_PRESERVE_GPS;                // NEW
     
     return oDefaultConfig;
 } // End Function fn_getDefaultConfig
@@ -174,4 +179,9 @@ void fn_printConfig(const oConfig& oCurrentConfig)
     std::cout << "  Recursive: " << (oCurrentConfig.bRecursive ? "true" : "false") << std::endl;
     std::cout << "  Keep Metadata: " << (oCurrentConfig.bKeepMetadata ? "true" : "false") << std::endl;
     std::cout << "  Strip Color Profile: " << (oCurrentConfig.bStripColorProfile ? "true" : "false") << std::endl;
+    std::cout << "  Preserve Timestamps: " << (oCurrentConfig.bPreserveTimestamps ? "true" : "false") << std::endl;  // NEW
+    std::cout << "  Preserve EXIF: " << (oCurrentConfig.bPreserveEXIF ? "true" : "false") << std::endl;              // NEW
+    std::cout << "  Preserve XMP: " << (oCurrentConfig.bPreserveXMP ? "true" : "false") << std::endl;                // NEW
+    std::cout << "  Preserve IPTC: " << (oCurrentConfig.bPreserveIPTC ? "true" : "false") << std::endl;              // NEW
+    std::cout << "  Preserve GPS: " << (oCurrentConfig.bPreserveGPS ? "true" : "false") << std::endl;                // NEW
 } // End Function fn_printConfig
