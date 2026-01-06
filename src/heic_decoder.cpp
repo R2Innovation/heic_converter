@@ -1,4 +1,4 @@
-// heic_decoder.cpp - Fixed implementation
+// heic_decoder.cpp - Simplified version for Debian 12
 #include "heic_decoder.h"
 #include "logger.h"
 #include "file_utils.h"
@@ -35,6 +35,8 @@ HeicDecoder::HeicDecoder()
     pDecoderContext = nullptr;
     bInitialized = false;
     #endif
+    
+    m_pLogger = nullptr;  // Initialize logger pointer
 } // End Function HeicDecoder::HeicDecoder
 
 // Destructor
@@ -45,7 +47,10 @@ HeicDecoder::~HeicDecoder()
     fn_cleanupLibHeif();
     #else
     // Cleanup embedded decoder context
-    fn_cleanupDecoderContext();
+    if (pDecoderContext) {
+        free(pDecoderContext);
+        pDecoderContext = nullptr;
+    }
     #endif
 } // End Function HeicDecoder::~HeicDecoder
 
@@ -72,7 +77,7 @@ void HeicDecoder::fn_cleanupLibHeif()
     }
 }
 
-// Decode with libheif
+// Decode with libheif - SIMPLIFIED VERSION FOR DEBIAN 12
 bool HeicDecoder::fn_decodeWithLibHeif(const std::vector<unsigned char>& vData, oDecodedImage& oResult)
 {
     fn_cleanupLibHeif();
@@ -103,6 +108,16 @@ bool HeicDecoder::fn_decodeWithLibHeif(const std::vector<unsigned char>& vData, 
     oResult.bHasAlpha = heif_image_handle_has_alpha_channel(pHeifHandle);
     oResult.iChannels = oResult.bHasAlpha ? 4 : 3;
     
+    // Check if this might be a panorama (aspect ratio > 2:1)
+    bool is_panorama = (oResult.iWidth > oResult.iHeight * 2) || (oResult.iHeight > oResult.iWidth * 2);
+    
+    if (is_panorama && m_pLogger)
+    {
+        // Log panorama detection
+        // Note: We can't log without logger, so we'll just note it
+    }
+    
+    // Try to decode with default options
     err = heif_decode_image(pHeifHandle, &pHeifImage,
                            heif_colorspace_RGB,
                            oResult.bHasAlpha ? heif_chroma_interleaved_RGBA : heif_chroma_interleaved_RGB,
@@ -122,9 +137,17 @@ bool HeicDecoder::fn_decodeWithLibHeif(const std::vector<unsigned char>& vData, 
         return false;
     }
     
+    // For panoramas, we need to handle the stride properly
     size_t dataSize = oResult.iHeight * stride;
     oResult.vData.resize(dataSize);
-    memcpy(oResult.vData.data(), pData, dataSize);
+    
+    // Copy data row by row to handle stride
+    for (int row = 0; row < oResult.iHeight; row++)
+    {
+        const uint8_t* src_row = pData + (row * stride);
+        uint8_t* dst_row = oResult.vData.data() + (row * oResult.iWidth * oResult.iChannels);
+        memcpy(dst_row, src_row, oResult.iWidth * oResult.iChannels);
+    }
     
     return true;
 }
@@ -134,72 +157,10 @@ bool HeicDecoder::fn_decodeWithLibHeif(const std::vector<unsigned char>& vData, 
 // Initialize embedded codecs (only if libheif not available)
 bool HeicDecoder::fn_initializeEmbeddedCodecs()
 {
-    // Check if embedded codec path is set
-    if (sEmbeddedCodecPath.empty())
-    {
-        // Try to set default path
-        #ifdef DEBIAN12_BUILD
-            sEmbeddedCodecPath = "../data/debian12/";
-        #else
-            sEmbeddedCodecPath = "../data/";
-        #endif
-    }
-    
-    // Create decoder context
-    if (!fn_createDecoderContext())
-    {
-        sLastError = "Failed to create decoder context";
-        return false;
-    }
-    
+    // This is a stub - you would need to implement embedded codec initialization
+    // For now, just set initialized to true
     bInitialized = true;
     return true;
-}
-
-// Create decoder context for embedded codecs
-bool HeicDecoder::fn_createDecoderContext()
-{
-    // This would normally create libheif context with embedded codecs
-    // For now, just simulate success
-    pDecoderContext = malloc(1); // Placeholder
-    if (!pDecoderContext)
-    {
-        sLastError = "Failed to allocate decoder context";
-        return false;
-    }
-    
-    return true;
-}
-
-// Cleanup decoder context for embedded codecs
-void HeicDecoder::fn_cleanupDecoderContext()
-{
-    if (pDecoderContext)
-    {
-        free(pDecoderContext);
-        pDecoderContext = nullptr;
-    }
-    
-    bInitialized = false;
-}
-
-// Set embedded codec path (only for embedded codecs)
-void HeicDecoder::fn_setEmbeddedCodecPath(const std::string& sPath)
-{
-    sEmbeddedCodecPath = sPath;
-    
-    // Reset initialization if path changed
-    if (bInitialized)
-    {
-        fn_cleanupDecoderContext();
-        bInitialized = false;
-    }
-}
-
-// Get embedded codec path
-std::string HeicDecoder::fn_getEmbeddedCodecPath()
-{
-    return sEmbeddedCodecPath;
 }
 #endif
 

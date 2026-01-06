@@ -20,6 +20,16 @@ else()
     set(BUILD_TYPE "generic")
 endif()
 
+add_definitions(-DHAVE_LIBHEIF)
+add_definitions(-DLIBHEIF_HAVE_VERSION=1)  # Adjust based on your libheif version
+
+# If building on macOS, add frameworks
+if(APPLE)
+    find_library(COCOA_LIB Cocoa)
+    find_library(CORE_FOUNDATION_LIB CoreFoundation)
+    target_link_libraries(heic_converter PRIVATE ${COCOA_LIB} ${CORE_FOUNDATION_LIB})
+endif()
+
 message(STATUS "Build type: ${BUILD_TYPE}")
 
 # Set data directory path
@@ -152,6 +162,30 @@ set(SOURCES
 
 # Add executable
 add_executable(heic_converter ${SOURCES})
+
+# Test program for panorama debugging
+add_executable(test_panorama
+    test/test_panorama.cpp
+    src/heic_decoder.cpp
+    src/file_utils.cpp
+    src/logger.cpp
+)
+
+# Link with the same libraries as the main executable
+target_link_libraries(test_panorama PRIVATE heif PNG::PNG JPEG::JPEG m)
+
+if(WEBP_LIBRARIES_FOUND)
+    target_link_libraries(test_panorama PRIVATE ${WEBP_LIBRARIES})
+endif()
+
+if(TIFF_LIBRARIES_FOUND)
+    target_link_libraries(test_panorama PRIVATE ${TIFF_LIBRARIES})
+endif()
+
+set_target_properties(test_panorama PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    OUTPUT_NAME test_panorama
+)
 
 # Link core libraries
 target_link_libraries(heic_converter PRIVATE PNG::PNG JPEG::JPEG)

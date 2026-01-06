@@ -1,7 +1,8 @@
 #include "converter.h"
 #include "image_processor.h"
 #include "format_encoder.h"
-#include "metadata_handler.h"  // Add this include
+#include "metadata_handler.h"
+#include "logger.h"
 #include <iostream>
 #include <filesystem>
 #include <fstream>
@@ -105,7 +106,7 @@ int Converter::fn_convertFile(const std::string& sInputPath,
     
     if (!success) {
         m_pLogger->fn_logError("Conversion failed: " + sInputPath);
-        return ERROR_DECODING_FAILED;
+        success = fn_fallbackSystemConversion(sInputPath, sOutputPath);
     }
     
     // Write EXIF metadata to output file if it's a JPEG
@@ -170,5 +171,11 @@ bool Converter::fn_isHeicFormat(const std::string& sFilePath)
     return (sExtension == ".heic" || sExtension == ".heif");
 } // End Function fn_isHeicFormat
 
-// Placeholder implementations for other functions...
-// (Keep the rest of the file as is)
+bool Converter::fn_fallbackSystemConversion(const std::string& sInputPath, 
+                                           const std::string& sOutputPath)
+{
+    if (m_pLogger) {
+        m_pLogger->fn_logWarning("System fallback not implemented for: " + sInputPath);
+    }
+    return false;
+}

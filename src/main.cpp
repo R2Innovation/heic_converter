@@ -7,6 +7,7 @@
 #include "config.h"
 #include "logger.h"
 #include "file_utils.h"
+#include "heic_decoder.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -497,3 +498,39 @@ int fn_processConversion(const oConfig& oCurrentConfig)
         return iConvertResult; // Return conversion result
     } // End else
 } // End Function fn_processConversion
+
+void fn_debugHeicFile(const std::string& sFilePath)
+{
+    // Check if file exists first
+    if (!fn_fileExists(sFilePath)) {
+        std::cout << "File does not exist: " << sFilePath << std::endl;
+        return;
+    }
+    
+    HeicDecoder decoder;
+    oHeicInfo info = decoder.fn_getImageInfo(sFilePath);
+    
+    std::cout << "=== HEIC Debug Info ===" << std::endl;
+    std::cout << "File: " << sFilePath << std::endl;
+    std::cout << "Format: " << info.sFormat << std::endl;
+    std::cout << "Dimensions: " << info.iWidth << "x" << info.iHeight << std::endl;
+    std::cout << "Bit Depth: " << info.iBitDepth << std::endl;
+    std::cout << "Has Alpha: " << (info.bHasAlpha ? "Yes" : "No") << std::endl;
+    std::cout << "Orientation: " << info.iOrientation << std::endl;
+    
+    // Check file size
+    uint64_t fileSize = fn_getFileSize(sFilePath);
+    std::cout << "File Size: " << fileSize << " bytes" << std::endl;
+    
+    // Try to decode a small preview
+    oDecodedImage decoded = decoder.fn_decodeFile(sFilePath);
+    if (!decoded.sError.empty())
+    {
+        std::cout << "Decode Error: " << decoded.sError << std::endl;
+    }
+    else
+    {
+        std::cout << "Decoded Successfully: " << decoded.iWidth << "x" << decoded.iHeight 
+                  << " (" << decoded.iChannels << " channels)" << std::endl;
+    }
+}

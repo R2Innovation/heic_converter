@@ -61,12 +61,16 @@ public:
     std::string fn_getEmbeddedCodecPath();                                 // Local Function
     #endif
     
+    // NEW: Set logger for debugging
+    void fn_setLogger(class oLogger* pLogger) { m_pLogger = pLogger; }    // Local Function
+    
 private:
     // Private variables
     std::string sLastError;                      // Last error message
     bool bInitialized;                           // Whether decoder is initialized
     std::string sEmbeddedCodecPath;              // Path to embedded codec data (if needed)
     std::vector<std::string> vsSupportedFormats; // List of supported formats
+    class oLogger* m_pLogger;                    // NEW: Logger pointer
     
     #ifdef HAVE_LIBHEIF
     // Libheif context and handle
@@ -77,6 +81,9 @@ private:
     // Private functions for libheif
     bool fn_decodeWithLibHeif(const std::vector<unsigned char>& vData, oDecodedImage& oResult);
     void fn_cleanupLibHeif();
+    
+    // NEW: Panorama handling
+    bool fn_handlePanoramaImage(struct heif_image_handle* handle, oDecodedImage& oResult);
     #else
     // Embedded codec context (placeholder)
     void* pDecoderContext;

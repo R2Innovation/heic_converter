@@ -93,6 +93,10 @@ private:
                                const std::string& sOutputPath, 
                                const ConversionOptions& oOptions, 
                                bool bSuccess);
+    
+    // NEW: Add the missing function declaration
+    bool fn_fallbackSystemConversion(const std::string& sInputPath, 
+                                     const std::string& sOutputPath);
 };
 
 #endif // CONVERTER_H

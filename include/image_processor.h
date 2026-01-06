@@ -4,7 +4,7 @@
 
 #include <string>
 #include <vector>
-#include "logger.h"  // Add this include
+#include "logger.h"
 
 class ImageProcessor 
 {
