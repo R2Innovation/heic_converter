@@ -1,6 +1,6 @@
 // main.cpp - Main entry point for HEIC Converter
 // Author: R Square Innovation Software
-// Version: v1.1  // CHANGED: v1.0 to v1.1
+// Version: v1.2
 
 #include "converter.h"
 #include "batch_processor.h"
@@ -113,7 +113,7 @@ void fn_showHelp()
 
 // Local Function
 void fn_showVersion() 
-{ // Begin fn_showVersion
+{
     std::cout << sPROGRAM_NAME << " " << sVERSION << std::endl; // In iostream
     std::cout << "Build type: " << sBUILD_TYPE << std::endl; // In iostream
     std::cout << "Author: " << sAUTHOR << std::endl; // In iostream
@@ -124,12 +124,11 @@ void fn_showVersion()
 
 // Local Function
 void fn_printWelcome() 
-{ // Begin fn_printWelcome
+{
     std::cout << "========================================" << std::endl; // In iostream
     std::cout << "HEIC/HEIF Converter " << sVERSION << std::endl; // In iostream
     std::cout << "by " << sAUTHOR << std::endl; // In iostream
     std::cout << "Build: " << sBUILD_TYPE << std::endl; // In iostream
-    std::cout << "Features: Metadata and timestamp preservation" << std::endl; // NEW
     std::cout << "========================================" << std::endl; // In iostream
     std::cout << std::endl; // In iostream
 } // End Function fn_printWelcome
