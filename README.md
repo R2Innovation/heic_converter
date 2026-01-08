@@ -1,11 +1,11 @@
-# **HEIC/HEIF Converter v1.0**
+# **HEIC/HEIF Converter v1.2**
 
 ## **Overview**
 
 A command-line tool for converting HEIC/HEIF image files to other common image formats (JPEG, PNG, BMP, TIFF, WebP). The converter includes embedded HEIC/HEIF codecs, eliminating the need for system-wide codec installation.
 
 **Author:** R Square Innovation Software  
-**Version:** v1.1  
+**Version:** v1.2  
 **License:** GPLv3 (See LICENSE file)
 
 ## **Features**
